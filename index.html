@@ -3323,11 +3323,13 @@
     if (state.selectedAnswer !== null) {
       checkAnswer();
     } else {
-      // unbeantwortet = falsch
+      // unbeantwortet = als falsch werten
       state.wrong.push({
-        question: q.frage,
-        yourAnswer: "Keine Antwort",
-        correctAnswer: q.optionen[q.richtig]
+        nummer: q.nummer ?? state.index + 1,
+        frage: q.frage,
+        deine_antwort: "Keine Antwort",
+        richtige_antwort: q.optionen[q.richtig],
+        original: q,
       });
 
       state.checked = true;
@@ -3335,18 +3337,17 @@
     }
   }
 
-  if (state.index < state.questions.length - 1) {
-    state.index += 1;
-    renderQuestion();
-    saveProgress();
-  }
-}
+  state.index += 1;
 
-  if (state.index < state.questions.length) {
-    state.index += 1;
+  if (state.index >= state.questions.length) {
+    renderResult();
+    showScreen('result');
+  } else {
     renderQuestion();
-    saveProgress();
   }
+
+  saveProgress();
+}
 
     function renderResult() {
       clearProgress();
