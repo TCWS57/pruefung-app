@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Prüfungstrainer</title>
+  <meta name="theme-color" content="#0f172a" />
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --primary: #0f172a;
+      --primary-2: #1e293b;
+      --success-bg: #ecfdf5;
+      --success-text: #166534;
+      --success-border: #bbf7d0;
+      --error-bg: #fef2f2;
+      --error-text: #991b1b;
+      --error-border: #fecaca;
+      --info-bg: #eff6ff;
+      --info-text: #1d4ed8;
+      --info-border: #bfdbfe;
+      --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .app {
+      max-width: 760px;
+      margin: 0 auto;
+      padding-bottom: 32px;
+    }
+
+    .title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin: 12px 0 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+    }
+
+    .muted {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .stack { display: grid; gap: 12px; }
+
+    .label {
+      font-weight: 650;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .radio-group {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .choice {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      cursor: pointer;
+      transition: 0.15s ease;
+      background: white;
+    }
+
+    .choice:hover { border-color: #94a3b8; transform: translateY(-1px); }
+    .choice.selected { border-color: var(--primary); background: #f8fafc; }
+    .choice.correct { border-color: var(--success-border); background: var(--success-bg); }
+    .choice.wrong { border-color: var(--error-border); background: var(--error-bg); }
+
+    input[type="radio"] {
+      margin-top: 2px;
+      transform: scale(1.15);
+      accent-color: var(--primary);
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    button.primary { background: var(--primary); color: white; }
+    button.secondary { background: #e2e8f0; color: var(--text); }
+    button.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button:not(:disabled):active { transform: scale(0.99); }
+
+    .message {
+      border-radius: 14px;
+      padding: 12px 14px;
+      border: 1px solid transparent;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    .message.info { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
+    .message.success { background: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
+    .message.error { background: var(--error-bg); color: var(--error-text); border-color: var(--error-border); }
+
+    .progress-wrap {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+      margin: 10px 0 6px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #0f172a, #334155);
+      transition: width 0.2s ease;
+    }
+
+    .question-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1.5;
+      margin: 8px 0 14px;
+    }
+
+    .caption {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+
+    details {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    details + details { margin-top: 10px; }
+    summary { cursor: pointer; font-weight: 700; }
+    .summary-content { margin-top: 10px; color: var(--muted); line-height: 1.5; }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 520px) {
+      body { padding: 12px; }
+      .title { font-size: 1.7rem; }
+      .card { padding: 15px; }
+      .btn-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="title">📘 Prüfungstrainer</div>
+
+    <section id="screen-start" class="card stack">
+      <div>
+        <div class="section-title">Start</div>
+        <div class="muted">Wähle eine Prüfung und einen Modus.</div>
+      </div>
+
+      <div>
+        <label class="label">Fragen-JSON laden</label>
+        <input id="jsonFile" type="file" accept=".json,application/json" />
+        <div class="footer-note" style="text-align:left;margin-top:8px;">
+          Wähle deine Datei <strong>fragen_wirtefachpruefung.json</strong> aus. Die App läuft komplett lokal im Browser.
+        </div>
+      </div>
+
+      <div id="fileStatus" class="message info">Noch keine JSON-Datei geladen.</div>
+
+      <div>
+        <div class="label">Prüfung auswählen</div>
+        <div id="examOptions" class="radio-group"></div>
+      </div>
+
+      <div>
+        <div class="label">Modus</div>
+        <div class="radio-group" id="modeOptions">
+          <label class="choice selected">
+            <input type="radio" name="mode" value="Zufällig" checked />
+            <span>Zufällig</span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="mode" value="Originalreihenfolge" />
+            <span>Originalreihenfolge</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="examInfo" class="message info">Lade zuerst die JSON-Datei.</div>
+      <button id="startBtn" class="primary" disabled>Training starten</button>
+    </section>
+
+    <section id="screen-quiz" class="card hidden">
+      <div id="activeExam" class="caption"></div>
+      <div class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
+      <div id="progressText" class="caption"></div>
+      <div id="questionText" class="question-text"></div>
+      <div id="answers" class="radio-group"></div>
+      <div id="feedback" class="message hidden"></div>
+      <div class="btn-row">
+        <button id="checkBtn" class="primary">Antwort prüfen</button>
+        <button id="nextBtn" class="secondary">Nächste Frage</button>
+      </div>
+    </section>
+
+    <section id="screen-result" class="card hidden stack">
+      <div>
+        <div class="section-title">Fertig</div>
+        <div id="resultText" class="muted"></div>
+      </div>
+      <div id="wrongContainer" class="hidden">
+        <div class="section-title">Falsch beantwortete Fragen</div>
+        <div id="wrongList"></div>
+      </div>
+      <div class="btn-row">
+        <button id="homeBtn" class="secondary">Zur Startseite</button>
+        <button id="repeatBtn" class="primary">Nur falsche wiederholen</button>
+      </div>
+    </section>
+
+    <div class="footer-note">Tipp: In Safari kannst du die Seite zum Home-Bildschirm hinzufügen.</div>
+  </div>
+
+  <script>
+    const state = {
+      allQuestions: [],
+      exams: [],
+      selectedExamNumber: 1,
+      mode: 'Zufällig',
+      questions: [],
+      index: 0,
+      points: 0,
+      wrong: [],
+      checked: false,
+      selectedAnswer: null,
+    };
+
+    const els = {
+      start: document.getElementById('screen-start'),
+      quiz: document.getElementById('screen-quiz'),
+      result: document.getElementById('screen-result'),
+      jsonFile: document.getElementById('jsonFile'),
+      fileStatus: document.getElementById('fileStatus'),
+      examOptions: document.getElementById('examOptions'),
+      examInfo: document.getElementById('examInfo'),
+      startBtn: document.getElementById('startBtn'),
+      modeOptions: document.getElementById('modeOptions'),
+      activeExam: document.getElementById('activeExam'),
+      progressBar: document.getElementById('progressBar'),
+      progressText: document.getElementById('progressText'),
+      questionText: document.getElementById('questionText'),
+      answers: document.getElementById('answers'),
+      feedback: document.getElementById('feedback'),
+      checkBtn: document.getElementById('checkBtn'),
+      nextBtn: document.getElementById('nextBtn'),
+      resultText: document.getElementById('resultText'),
+      wrongContainer: document.getElementById('wrongContainer'),
+      wrongList: document.getElementById('wrongList'),
+      homeBtn: document.getElementById('homeBtn'),
+      repeatBtn: document.getElementById('repeatBtn'),
+    };
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function splitIntoExams(questions, count = 4) {
+      const total = questions.length;
+      const blockSize = Math.floor(total / count);
+      const rest = total % count;
+      const exams = [];
+      let start = 0;
+      for (let i = 0; i < count; i++) {
+        const extra = i < rest ? 1 : 0;
+        const end = start + blockSize + extra;
+        exams.push(questions.slice(start, end));
+        start = end;
+      }
+      return exams;
+    }
+
+    function setMessage(el, type, text) {
+      el.className = `message ${type}`;
+      el.textContent = text;
+    }
+
+    function showScreen(name) {
+      els.start.classList.toggle('hidden', name !== 'start');
+      els.quiz.classList.toggle('hidden', name !== 'quiz');
+      els.result.classList.toggle('hidden', name !== 'result');
+    }
+
+    function renderExamOptions() {
+      els.examOptions.innerHTML = '';
+      state.exams.forEach((block, idx) => {
+        const number = idx + 1;
+        if (!block.length) return;
+        const first = block[0]?.nummer ?? '?';
+        const last = block[block.length - 1]?.nummer ?? '?';
+        const label = document.createElement('label');
+        label.className = `choice ${state.selectedExamNumber === number ? 'selected' : ''}`;
+        label.innerHTML = `
+          <input type="radio" name="exam" value="${number}" ${state.selectedExamNumber === number ? 'checked' : ''}>
+          <span>Prüfung ${number} (Fragen ${first}–${last})</span>
+        `;
+        label.addEventListener('click', () => {
+          state.selectedExamNumber = number;
+          renderExamOptions();
+          updateExamInfo();
+        });
+        els.examOptions.appendChild(label);
+      });
+    }
+
+    function updateExamInfo() {
+      if (!state.exams.length) {
+        setMessage(els.examInfo, 'info', 'Lade zuerst die JSON-Datei.');
+        return;
+      }
+      const count = state.exams[state.selectedExamNumber - 1]?.length || 0;
+      setMessage(els.examInfo, 'info', `Diese Prüfung enthält ${count} Fragen.`);
+    }
+
+    function readMode() {
+      const checked = document.querySelector('input[name="mode"]:checked');
+      state.mode = checked ? checked.value : 'Zufällig';
+      [...els.modeOptions.querySelectorAll('.choice')].forEach(label => {
+        const radio = label.querySelector('input');
+        label.classList.toggle('selected', radio.checked);
+      });
+    }
+
+    function initializeTraining(withCustomQuestions = null) {
+      let questions;
+      if (withCustomQuestions) {
+        questions = [...withCustomQuestions];
+      } else {
+        const exam = state.exams[state.selectedExamNumber - 1] || [];
+        questions = [...exam];
+        if (state.mode === 'Zufällig') questions = shuffle(questions);
+      }
+
+      state.questions = questions;
+      state.index = 0;
+      state.points = 0;
+      state.wrong = [];
+      state.checked = false;
+      state.selectedAnswer = null;
+      renderQuestion();
+      showScreen('quiz');
+    }
+
+    function renderQuestion() {
+      const total = state.questions.length;
+      const index = state.index;
+      if (index >= total) {
+        renderResult();
+        showScreen('result');
+        return;
+      }
+
+      const q = state.questions[index];
+      els.activeExam.textContent = `Aktive Prüfung: Prüfung ${state.selectedExamNumber}`;
+      els.progressBar.style.width = `${(index / total) * 100}%`;
+      els.progressText.textContent = `Frage ${index + 1} von ${total}`;
+      els.questionText.textContent = q.frage;
+      els.answers.innerHTML = '';
+      els.feedback.classList.add('hidden');
+      els.feedback.textContent = '';
+      state.checked = false;
+      state.selectedAnswer = null;
+
+      q.optionen.forEach((option, i) => {
+        const label = document.createElement('label');
+        label.className = 'choice';
+        label.innerHTML = `
+          <input type="radio" name="answer" value="${i}">
+          <span>${option}</span>
+        `;
+
+        label.addEventListener('click', () => {
+          if (state.checked) return;
+          state.selectedAnswer = i;
+          [...els.answers.querySelectorAll('.choice')].forEach(c => c.classList.remove('selected'));
+          label.classList.add('selected');
+          label.querySelector('input').checked = true;
+        });
+        els.answers.appendChild(label);
+      });
+    }
+
+    function checkAnswer() {
+      if (state.checked) return;
+      const q = state.questions[state.index];
+      if (state.selectedAnswer === null) {
+        setMessage(els.feedback, 'error', 'Bitte zuerst eine Antwort auswählen.');
+        els.feedback.classList.remove('hidden');
+        return;
+      }
+
+      const choices = [...els.answers.querySelectorAll('.choice')];
+      const correctIndex = q.richtig;
+      choices[correctIndex]?.classList.add('correct');
+
+      if (state.selectedAnswer === correctIndex) {
+        state.points += 1;
+        setMessage(els.feedback, 'success', 'Richtig.');
+      } else {
+        choices[state.selectedAnswer]?.classList.add('wrong');
+        const correctText = q.optionen[correctIndex];
+        setMessage(els.feedback, 'error', `Falsch. Richtig ist: ${correctText}`);
+        state.wrong.push({
+          nummer: q.nummer ?? state.index + 1,
+          frage: q.frage,
+          deine_antwort: q.optionen[state.selectedAnswer],
+          richtige_antwort: correctText,
+          original: q,
+        });
+      }
+
+      els.feedback.classList.remove('hidden');
+      state.checked = true;
+    }
+
+    function nextQuestion() {
+      if (state.index < state.questions.length) {
+        state.index += 1;
+        renderQuestion();
+      }
+    }
+
+    function renderResult() {
+      const total = state.questions.length;
+      const percent = total ? ((state.points / total) * 100).toFixed(1) : '0.0';
+      els.resultText.innerHTML = `
+        <p><strong>Ergebnis Prüfung ${state.selectedExamNumber}:</strong> ${state.points} von ${total} richtig</p>
+        <p><strong>Quote:</strong> ${percent} %</p>
+      `;
+
+      els.wrongList.innerHTML = '';
+      if (state.wrong.length) {
+        els.wrongContainer.classList.remove('hidden');
+        state.wrong.forEach(item => {
+          const details = document.createElement('details');
+          details.innerHTML = `
+            <summary>Frage ${item.nummer}</summary>
+            <div class="summary-content">
+              <p><strong>Frage:</strong> ${item.frage}</p>
+              <p><strong>Deine Antwort:</strong> ${item.deine_antwort}</p>
+              <p><strong>Richtige Antwort:</strong> ${item.richtige_antwort}</p>
+            </div>
+          `;
+          els.wrongList.appendChild(details);
+        });
+      } else {
+        els.wrongContainer.classList.remove('hidden');
+        els.wrongList.innerHTML = '<div class="message success">Alles richtig beantwortet. Stark.</div>';
+      }
+    }
+
+    function goHome() {
+      showScreen('start');
+    }
+
+    function repeatWrongQuestions() {
+      if (!state.wrong.length) {
+        alert('Keine falschen Fragen zum Wiederholen gefunden.');
+        return;
+      }
+      const custom = state.wrong.map(item => item.original);
+      initializeTraining(custom);
+    }
+
+    function validateQuestions(data) {
+      if (!Array.isArray(data) || data.length === 0) {
+        throw new Error('Die JSON-Datei enthält keine Fragenliste.');
+      }
+      data.forEach((item, idx) => {
+        if (typeof item?.frage !== 'string' || !Array.isArray(item?.optionen) || typeof item?.richtig !== 'number') {
+          throw new Error(`Ungültiger Eintrag bei Frage ${idx + 1}.`);
+        }
+      });
+    }
+
+    els.jsonFile.addEventListener('change', async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        validateQuestions(data);
+        state.allQuestions = data;
+        state.exams = splitIntoExams(data, 4);
+        state.selectedExamNumber = 1;
+        renderExamOptions();
+        updateExamInfo();
+        els.startBtn.disabled = false;
+        setMessage(els.fileStatus, 'success', `${file.name} geladen: ${data.length} Fragen.`);
+      } catch (err) {
+        state.allQuestions = [];
+        state.exams = [];
+        els.startBtn.disabled = true;
+        els.examOptions.innerHTML = '';
+        updateExamInfo();
+        setMessage(els.fileStatus, 'error', `Fehler beim Laden: ${err.message}`);
+      }
+    });
+
+    els.modeOptions.addEventListener('change', readMode);
+    els.startBtn.addEventListener('click', () => {
+      readMode();
+      initializeTraining();
+    });
+    els.checkBtn.addEventListener('click', checkAnswer);
+    els.nextBtn.addEventListener('click', nextQuestion);
+    els.homeBtn.addEventListener('click', goHome);
+    els.repeatBtn.addEventListener('click', repeatWrongQuestions);
+
+    readMode();
+    updateExamInfo();
+  </script>
+</body>
+</html>
