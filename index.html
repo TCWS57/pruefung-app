@@ -3317,13 +3317,31 @@
     }
 
     function nextQuestion() {
-      if (state.index < state.questions.length) {
-        state.index += 1;
-        renderQuestion();
-        saveProgress(); 
-      }
-    }
+  const q = state.questions[state.index - 1];
 
+  if (!state.checked) {
+    if (state.selectedAnswer !== null) {
+      // ausgewählt, aber noch nicht geprüft -> normal prüfen
+      checkAnswer();
+    } else {
+      // nichts ausgewählt -> automatisch als falsch werten
+      state.wrong.push({
+        question: q.frage,
+        yourAnswer: "Keine Antwort",
+        correctAnswer: q.optionen[q.richtig]
+      });
+
+      state.checked = true;
+      saveProgress();
+    }
+  }
+
+  if (state.index < state.questions.length) {
+    state.index += 1;
+    renderQuestion();
+    saveProgress();
+  }
+}
     function renderResult() {
       clearProgress();
       
