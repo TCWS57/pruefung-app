@@ -211,16 +211,7 @@
         <div class="muted">Wähle eine Prüfung und einen Modus.</div>
       </div>
 
-      <div>
-        <label class="label">Fragen-JSON laden</label>
-        <input id="jsonFile" type="file" accept=".json,application/json" />
-        <div class="footer-note" style="text-align:left;margin-top:8px;">
-          Wähle deine Datei <strong>fragen_wirtefachpruefung.json</strong> aus. Die App läuft komplett lokal im Browser.
-        </div>
-      </div>
-
-      <div id="fileStatus" class="message info">Noch keine JSON-Datei geladen.</div>
-
+   
       <div>
         <div class="label">Prüfung auswählen</div>
         <div id="examOptions" class="radio-group"></div>
@@ -240,7 +231,6 @@
         </div>
       </div>
 
-      <div id="examInfo" class="message info">Lade zuerst die JSON-Datei.</div>
       <button id="startBtn" class="primary" disabled>Training starten</button>
     </section>
 
@@ -276,7 +266,7 @@
   </div>
 
   <script>
-    [
+    const fragen = [
   {
     "nummer": 1,
     "frage": "Welches der aufgeführten Produkte zählt zu den Lebensmitteln?",
