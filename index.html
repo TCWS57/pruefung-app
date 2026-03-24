@@ -3316,15 +3316,14 @@
       saveProgress();
     }
 
-    function nextQuestion() {
-  const q = state.questions[state.index - 1];
+  function nextQuestion() {
+  const q = state.questions[state.index];
 
   if (!state.checked) {
     if (state.selectedAnswer !== null) {
-      // ausgewählt, aber noch nicht geprüft -> normal prüfen
       checkAnswer();
     } else {
-      // nichts ausgewählt -> automatisch als falsch werten
+      // unbeantwortet = falsch
       state.wrong.push({
         question: q.frage,
         yourAnswer: "Keine Antwort",
@@ -3335,6 +3334,13 @@
       saveProgress();
     }
   }
+
+  if (state.index < state.questions.length - 1) {
+    state.index += 1;
+    renderQuestion();
+    saveProgress();
+  }
+}
 
   if (state.index < state.questions.length) {
     state.index += 1;
