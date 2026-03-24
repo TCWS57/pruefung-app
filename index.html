@@ -3134,10 +3134,7 @@
       start: document.getElementById('screen-start'),
       quiz: document.getElementById('screen-quiz'),
       result: document.getElementById('screen-result'),
-      jsonFile: document.getElementById('jsonFile'),
-      fileStatus: document.getElementById('fileStatus'),
       examOptions: document.getElementById('examOptions'),
-      examInfo: document.getElementById('examInfo'),
       startBtn: document.getElementById('startBtn'),
       modeOptions: document.getElementById('modeOptions'),
       activeExam: document.getElementById('activeExam'),
@@ -3213,12 +3210,7 @@
     }
 
     function updateExamInfo() {
-      if (!state.exams.length) {
-        setMessage(els.examInfo, 'info', 'Lade zuerst die JSON-Datei.');
-        return;
-      }
-      const count = state.exams[state.selectedExamNumber - 1]?.length || 0;
-      setMessage(els.examInfo, 'info', `Diese Prüfung enthält ${count} Fragen.`);
+      
     }
 
     function readMode() {
@@ -3382,30 +3374,17 @@
       });
     }
 
-    els.jsonFile.addEventListener('change', async (event) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      try {
-        const text = await file.text();
-        const data = JSON.parse(text);
-        validateQuestions(data);
-        state.allQuestions = data;
-        state.exams = splitIntoExams(data, 4);
-        state.selectedExamNumber = 1;
-        renderExamOptions();
-        updateExamInfo();
-        els.startBtn.disabled = false;
-        setMessage(els.fileStatus, 'success', `${file.name} geladen: ${data.length} Fragen.`);
-      } catch (err) {
-        state.allQuestions = [];
-        state.exams = [];
-        els.startBtn.disabled = true;
-        els.examOptions.innerHTML = '';
-        updateExamInfo();
-        setMessage(els.fileStatus, 'error', `Fehler beim Laden: ${err.message}`);
-      }
-    });
+    try {
+  validateQuestions(fragen);
+  state.allQuestions = fragen;
+  state.exams = splitIntoExams(fragen, 4);
+  state.selectedExamNumber = 1;
+  renderExamOptions();
+  els.startBtn.disabled = false;
+} catch (err) {
+  console.error(err);
+  alert("Fehler in eingebetteten Fragen: " + err.message);
+}
 
     els.modeOptions.addEventListener('change', readMode);
     els.startBtn.addEventListener('click', () => {
