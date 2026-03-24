@@ -242,9 +242,10 @@
       <div id="answers" class="radio-group"></div>
       <div id="feedback" class="message hidden"></div>
       <div class="btn-row">
-        <button id="checkBtn" class="primary">Antwort prüfen</button>
-        <button id="nextBtn" class="secondary">Nächste Frage</button>
-      </div>
+  <button id="checkBtn" class="primary">Antwort prüfen</button>
+  <button id="nextBtn" class="secondary">Nächste Frage</button>
+  <button id="exitBtn" class="ghost">Abbrechen</button>
+</div>
     </section>
 
     <section id="screen-result" class="card hidden stack">
@@ -262,7 +263,6 @@
       </div>
     </section>
 
-    <div class="footer-note">Tipp: In Safari kannst du die Seite zum Home-Bildschirm hinzufügen.</div>
   </div>
 
   <script>
@@ -3150,6 +3150,7 @@
       wrongList: document.getElementById('wrongList'),
       homeBtn: document.getElementById('homeBtn'),
       repeatBtn: document.getElementById('repeatBtn'),
+      exitBtn: document.getElementById('exitBtn'),
     };
 
     function shuffle(array) {
@@ -3312,16 +3313,20 @@
 
       els.feedback.classList.remove('hidden');
       state.checked = true;
+      saveProgress();
     }
 
     function nextQuestion() {
       if (state.index < state.questions.length) {
         state.index += 1;
+        saveProgress(); 
         renderQuestion();
       }
     }
 
     function renderResult() {
+      clearProgress();
+      
       const total = state.questions.length;
       const percent = total ? ((state.points / total) * 100).toFixed(1) : '0.0';
       els.resultText.innerHTML = `
@@ -3354,6 +3359,14 @@
       showScreen('start');
     }
 
+    function exitQuiz() {
+      const confirmExit = confirm("Training abbrechen?");
+       if (!confirmExit) return;
+
+       saveProgress(); // 👈 Fortschritt sichern
+        showScreen('start');
+}
+
     function repeatWrongQuestions() {
       if (!state.wrong.length) {
         alert('Keine falschen Fragen zum Wiederholen gefunden.');
@@ -3374,6 +3387,33 @@
       });
     }
 
+    function saveProgress() {
+  const progress = {
+    selectedExamNumber: state.selectedExamNumber,
+    mode: state.mode,
+    questions: state.questions,
+    index: state.index,
+    points: state.points,
+    wrong: state.wrong
+  };
+  localStorage.setItem("quiz_progress", JSON.stringify(progress));
+}
+
+function loadProgress() {
+  const raw = localStorage.getItem("quiz_progress");
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function clearProgress() {
+  localStorage.removeItem("quiz_progress");
+}
+
     try {
   validateQuestions(fragen);
   state.allQuestions = fragen;
@@ -3381,7 +3421,27 @@
   state.selectedExamNumber = 1;
   renderExamOptions();
   els.startBtn.disabled = false;
-} catch (err) {
+} 
+
+const saved = loadProgress();
+
+if (saved) {
+  const resume = confirm("Gespeicherten Fortschritt fortsetzen?");
+  if (resume) {
+    state.selectedExamNumber = saved.selectedExamNumber;
+    state.mode = saved.mode;
+    state.questions = saved.questions;
+    state.index = saved.index;
+    state.points = saved.points;
+    state.wrong = saved.wrong;
+
+    renderExamOptions();
+    showScreen('quiz');
+    renderQuestion();
+  }
+}
+
+catch (err) {
   console.error(err);
   alert("Fehler in eingebetteten Fragen: " + err.message);
 }
@@ -3395,6 +3455,7 @@
     els.nextBtn.addEventListener('click', nextQuestion);
     els.homeBtn.addEventListener('click', goHome);
     els.repeatBtn.addEventListener('click', repeatWrongQuestions);
+    els.exitBtn.addEventListener('click', exitQuiz);
 
     readMode();
     updateExamInfo();
