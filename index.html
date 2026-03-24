@@ -3319,8 +3319,8 @@
     function nextQuestion() {
       if (state.index < state.questions.length) {
         state.index += 1;
-        saveProgress(); 
         renderQuestion();
+        saveProgress(); 
       }
     }
 
@@ -3421,27 +3421,25 @@ function clearProgress() {
   state.selectedExamNumber = 1;
   renderExamOptions();
   els.startBtn.disabled = false;
-} 
 
-const saved = loadProgress();
+  const saved = loadProgress();
 
-if (saved) {
-  const resume = confirm("Gespeicherten Fortschritt fortsetzen?");
-  if (resume) {
-    state.selectedExamNumber = saved.selectedExamNumber;
-    state.mode = saved.mode;
-    state.questions = saved.questions;
-    state.index = saved.index;
-    state.points = saved.points;
-    state.wrong = saved.wrong;
+  if (saved) {
+    const resume = confirm("Gespeicherten Fortschritt fortsetzen?");
+    if (resume) {
+      state.selectedExamNumber = saved.selectedExamNumber;
+      state.mode = saved.mode;
+      state.questions = saved.questions;
+      state.index = saved.index;
+      state.points = saved.points;
+      state.wrong = saved.wrong;
 
-    renderExamOptions();
-    showScreen('quiz');
-    renderQuestion();
+      renderExamOptions();
+      showScreen('quiz');
+      renderQuestion();
+    }
   }
-}
-
-catch (err) {
+} catch (err) {
   console.error(err);
   alert("Fehler in eingebetteten Fragen: " + err.message);
 }
