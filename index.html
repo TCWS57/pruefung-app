@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Prüfungstrainer</title>
   <meta name="theme-color" content="#0f172a" />
   <style>
@@ -199,6 +199,24 @@
       .card { padding: 15px; }
       .btn-row { grid-template-columns: 1fr; }
     }
+
+* {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Buttons fühlen sich besser an */
+button {
+  touch-action: manipulation;
+}
+
+/* Scroll bleibt smooth */
+html, body {
+  -webkit-overflow-scrolling: touch;
+}
+
   </style>
 </head>
 <body>
